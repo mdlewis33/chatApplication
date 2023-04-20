@@ -1,24 +1,23 @@
 from tkinter import *
 from chatApplication_Server import *
+import chatApplication_UI_Gen as uiGen
 
 def server_win():
-    serverWindow = Toplevel()
+    serverWindow = Tk()
     serverWindow.title('Client Chat')
     serverWindow.geometry('500x400')
 
-    frame = Frame(serverWindow)
-    frame.pack(side="top", expand=True, fill="both")
+    serverFrame = Frame(serverWindow)
+    serverFrame.pack(side=TOP, padx=10, pady=10)
 
-    beginBtn = Button(frame, text='Start server', bd=3, command=lambda: init_server_ip(frame))
-    beginBtn.pack()
+    def server_init_port(serverFrame):
+        uiGen.clear_frame(serverFrame)
+        serverFrame.after(100, lambda: init_server_ip(serverFrame))
+        serverFrame.after(200, lambda: init_server_port(serverFrame))
+
+
+
+    ipBtn = Button(serverFrame, text='Initialize server', bd=3, command=lambda: server_init_port(serverFrame))
+    ipBtn.pack(side=TOP, pady=10)
 
     serverWindow.mainloop()
-
-def clear_frame(frame):
-   for widgets in frame.winfo_children():
-      widgets.destroy()
-def show_results(frame, output):
-    clear_frame(frame)
-
-    result = Label(frame, text=output)
-    result.pack()

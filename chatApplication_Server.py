@@ -2,7 +2,7 @@ from socket import *
 import time
 import re
 from tkinter import *
-import chatApplication_UI_Server as uiServ
+import chatApplication_UI_Gen as uiGen
 
 '''
 def init_server_ip():
@@ -21,15 +21,19 @@ def init_server_ip():
                 valid = True
 '''
 
-def init_server_ip(serverWindow):
+def init_server_ip(serverFrame):
     global server_ip_entry
+    #uiGen.clear_frame(serverFrame)
 
     # Create a label and an entry widget for the server IP address
-    server_ip_label = Label(serverWindow, text='Enter the server IP address (<Enter> for localhost):')
-    server_ip_label.pack(padx=5, pady=5, side=LEFT)
+    server_ip_label = Label(serverFrame, text='Enter the server IP address (<Enter> for localhost):')
+    server_ip_label.pack(padx=5, pady=5, side=TOP)
 
-    server_ip_entry = Entry(serverWindow)
-    server_ip_entry.pack(padx=5, pady=5, side=LEFT)
+    ip_entry_frame = Frame(serverFrame)
+    ip_entry_frame.pack(padx=5, pady=5, side=TOP)
+
+    server_ip_entry = Entry(ip_entry_frame)
+    server_ip_entry.pack(side=LEFT)
 
     # Regular expression statement
     regex = "^([0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})$"
@@ -40,23 +44,44 @@ def init_server_ip(serverWindow):
         if server_ip == '':
             server_ip = '127.0.0.1'
         if re.search(regex, server_ip):
-            uiServ.show_results(serverWindow, server_ip)
+            uiGen.show_results(serverFrame, server_ip)
+        else:
+            uiGen.show_popup("Invalid IP Address.")
 
+    # Create a button to confirm the server IP address
+    okBtn = Button(serverFrame, text='OK', bd=3, command=on_ok)
+    okBtn.pack(padx=5, pady=5, side=RIGHT, after=server_ip_entry)
+
+    # Start the tkinter event loop
+    serverFrame.mainloop()
+
+def init_server_port(serverFrame):
+    #uiGen.clear_frame(serverFrame)
+    # Set the server port number
+    global server_port_entry
+
+    server_port_label = Label(serverFrame, text='Enter the server port number (<Enter> for localhost): ')
+    server_port_label.pack(padx=5, pady=5, side=TOP)
+
+    port_entry_frame = Frame(serverFrame)
+    port_entry_frame.pack(padx=5, pady=5, side=TOP)
+
+    server_port_entry = Entry(port_entry_frame)
+    server_port_entry.pack(side=LEFT)
+
+    def on_ok():
+        server_port = server_port_entry.get()
+        if server_port == '':
+            server_port = 8000
+        uiGen.show_results(serverFrame, server_port)
 
 
     # Create a button to confirm the server IP address
-    okBtn = Button(serverWindow, text='OK', bd=3, command=on_ok)
-    okBtn.pack(padx=5, pady=5, side=LEFT)
+    okBtn = Button(serverFrame, text='OK', bd=3, command=on_ok)
+    okBtn.pack(padx=5, pady=5, side=RIGHT, after=server_port_entry)
 
     # Start the tkinter event loop
-    serverWindow.mainloop()
-
-def init_server_port():
-    # Set the server port number
-    global server_port
-    server_port = input("Enter the server port number (<Enter> for localhost): ")
-    if server_port == '':
-        server_port = 8000
+    serverFrame.mainloop()
 
 def init_server_username():
     # Set the server username

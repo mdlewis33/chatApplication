@@ -6,10 +6,13 @@ mainWindow.title('Chat Application Launcher')
 mainWindow.geometry('400x300')
 
 def start_server():
-    btn1.destroy()
+    startBtn.destroy()
     server_win()
 
-btn1 = Button(mainWindow, text='Start Server', bd=3, command=start_server)
-btn1.pack()
+startBtn = Button(mainWindow, text='Start Server', bd=3, compound=TOP, command=start_server)
+startBtn.pack()
+
+quitBtn = Button(mainWindow, text='Quit', bd=3, compound=BOTTOM, command=mainWindow.destroy)
+quitBtn.pack()
 
 mainWindow.mainloop()
