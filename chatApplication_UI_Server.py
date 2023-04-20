@@ -10,14 +10,7 @@ def server_win():
     serverFrame = Frame(serverWindow)
     serverFrame.pack(side=TOP, padx=10, pady=10)
 
-    def server_init_port(serverFrame):
-        uiGen.clear_frame(serverFrame)
-        serverFrame.after(100, lambda: init_server_ip(serverFrame))
-        serverFrame.after(200, lambda: init_server_port(serverFrame))
-
-
-
-    ipBtn = Button(serverFrame, text='Initialize server', bd=3, command=lambda: server_init_port(serverFrame))
+    ipBtn = Button(serverFrame, text='Initialize server', bd=3, command=lambda: server_setup(serverFrame))
     ipBtn.pack(side=TOP, pady=10)
 
     serverWindow.mainloop()

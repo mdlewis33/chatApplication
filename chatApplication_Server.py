@@ -4,29 +4,13 @@ import re
 from tkinter import *
 import chatApplication_UI_Gen as uiGen
 
-'''
-def init_server_ip():
-    # Regular expression statement
-    regex = "^([0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})$"
-
-    # Set the server IP address and checks to see if the IP address is valid
-    valid = False
-    while not valid:
-        global server_ip
-        server_ip = input("Enter the server IP address (<Enter> for localhost): ")
-        if server_ip == '':
-            server_ip = '127.0.0.1'
-
-            if re.search(regex, server_ip):
-                valid = True
-'''
-
-def init_server_ip(serverFrame):
+def server_setup(serverFrame):
+    global server_port_entry
+    global server_user_entry
     global server_ip_entry
-    #uiGen.clear_frame(serverFrame)
 
     # Create a label and an entry widget for the server IP address
-    server_ip_label = Label(serverFrame, text='Enter the server IP address (<Enter> for localhost):')
+    server_ip_label = Label(serverFrame, text='Enter the server IP address (Leave blank for localhost):')
     server_ip_label.pack(padx=5, pady=5, side=TOP)
 
     ip_entry_frame = Frame(serverFrame)
@@ -35,32 +19,8 @@ def init_server_ip(serverFrame):
     server_ip_entry = Entry(ip_entry_frame)
     server_ip_entry.pack(side=LEFT)
 
-    # Regular expression statement
-    regex = "^([0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})$"
 
-    def on_ok():
-        global server_ip
-        server_ip = server_ip_entry.get()
-        if server_ip == '':
-            server_ip = '127.0.0.1'
-        if re.search(regex, server_ip):
-            uiGen.show_results(serverFrame, server_ip)
-        else:
-            uiGen.show_popup("Invalid IP Address.")
-
-    # Create a button to confirm the server IP address
-    okBtn = Button(serverFrame, text='OK', bd=3, command=on_ok)
-    okBtn.pack(padx=5, pady=5, side=RIGHT, after=server_ip_entry)
-
-    # Start the tkinter event loop
-    serverFrame.mainloop()
-
-def init_server_port(serverFrame):
-    #uiGen.clear_frame(serverFrame)
-    # Set the server port number
-    global server_port_entry
-
-    server_port_label = Label(serverFrame, text='Enter the server port number (<Enter> for localhost): ')
+    server_port_label = Label(serverFrame, text='Enter the server port number (Leave blank for localhost): ')
     server_port_label.pack(padx=5, pady=5, side=TOP)
 
     port_entry_frame = Frame(serverFrame)
@@ -69,26 +29,52 @@ def init_server_port(serverFrame):
     server_port_entry = Entry(port_entry_frame)
     server_port_entry.pack(side=LEFT)
 
-    def on_ok():
-        server_port = server_port_entry.get()
-        if server_port == '':
-            server_port = 8000
-        uiGen.show_results(serverFrame, server_port)
 
+    server_user_label = Label(serverFrame, text='Enter your username (Leave blank for server): ')
+    server_user_label.pack(padx=5, pady=5, side=TOP)
 
-    # Create a button to confirm the server IP address
-    okBtn = Button(serverFrame, text='OK', bd=3, command=on_ok)
-    okBtn.pack(padx=5, pady=5, side=RIGHT, after=server_port_entry)
+    user_entry_frame = Frame(serverFrame)
+    user_entry_frame.pack(padx=5, pady=5, side=TOP)
 
-    # Start the tkinter event loop
+    server_user_entry = Entry(user_entry_frame)
+    server_user_entry.pack(side=LEFT)
+
+    okBtn = Button(serverFrame, text='OK', bd=3, command=lambda: on_ok(serverFrame))
+    okBtn.pack(side=BOTTOM)
+
     serverFrame.mainloop()
 
-def init_server_username():
-    # Set the server username
+def on_ok(serverFrame):
+    # Regular expression statement
+    regex = "^([0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})$"
+
+    global server_ip
+    server_ip = server_ip_entry.get()
+    if server_ip == '':
+        server_ip = '127.0.0.1'
+    if re.search(regex, server_ip):
+        uiGen.display_txt(serverFrame, server_ip)
+    else:
+        uiGen.show_popup("Invalid IP Address.")
+
+    global server_port
+    server_port = server_port_entry.get()
+    if server_port == '':
+        server_port = 8000
+    uiGen.display_txt(serverFrame, server_port)
+
     global server_username
-    server_username = input("Enter your username (<Enter> for server): ")
+    server_username = server_user_entry.get()
     if server_username == '':
         server_username = 'server'
+    uiGen.display_txt(serverFrame, server_username)
+
+    #get_setup(serverFrame)
+
+def get_setup(serverFrame):
+    uiGen.clear_frame(serverFrame)
+
+
 
 def init_server_connect():
     # Create server socket
@@ -149,6 +135,7 @@ def init_server_connect():
 
         # Receive the client message
         client_message = connection_socket.recv(2048).decode()
+
 
 def server_end():
     # When the loop ends checks if the client or server ended the chat and responds accordingly

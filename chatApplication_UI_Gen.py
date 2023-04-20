@@ -4,7 +4,7 @@ def clear_frame(frame):
    for widgets in frame.winfo_children():
        widgets.destroy()
 
-def show_results(frame, output):
+def display_txt(frame, output):
     result = Label(frame, text=output)
     result.pack()
 
