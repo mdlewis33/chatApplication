@@ -1,6 +1,7 @@
 from tkinter import *
 from chatApplication_UI_Server import *
 
+# Creates a window handel server and client creation
 mainWindow = Tk()
 mainWindow.title('Chat Application Launcher')
 mainWindow.geometry('400x300')

@@ -59,7 +59,7 @@ def init_client_connect():
         client_message += client_message_input
 
         # Prints the inputted message to the screen
-        #print("<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message_input)
+        print("<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message_input)
 
         # Sends message to the server
         client_socket.send(client_message.encode())
@@ -76,7 +76,7 @@ def init_client_connect():
             break
 
         # Prints the received message to the screen with the servers username
-        print("<" + time.asctime(time.localtime()) + "> " + "[" + server_username + "]: " + server_message)
+        print("<" + time.asctime(time.localtime()) + "> " + "[server]: " + server_message)
 
 def client_end():
     # When the loop ends checks if the client or server ended the chat and responds accordingly

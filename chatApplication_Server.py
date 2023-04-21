@@ -58,6 +58,10 @@ def server_setup(serverFrame):
 # Gets the answers entered into the entry's and save them into variables.
 # serverFrame = Frame in the window that displays content
 def on_ok(serverFrame):
+    global server_ip
+    global server_port
+    global server_username
+
     # Regular expression statement to test
     regex = "^([0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})$"
 
@@ -89,13 +93,13 @@ def on_ok(serverFrame):
     uiGen.display_txt(serverFrame, server_username)
 
     # Calls function to begin connection of server to client
-    init_server_connect(serverFrame, server_ip, server_port)
+    init_server_connect(serverFrame)
 
 # Clears the window and attempts to connect to the client server, if it connects it will display the recieved message
 # serverFrame = Frame in the window that displays content
 # server_ip = Servers IP address
 # server_port = Servers port number
-def init_server_connect(serverFrame, server_ip, server_port):
+def init_server_connect(serverFrame):
     # Clears the window
     uiGen.clear_frame(serverFrame)
 
@@ -119,6 +123,7 @@ def init_server_connect(serverFrame, server_ip, server_port):
     connection_socket, address = server_socket.accept()
 
     # Receive the client username from the server
+    global client_username
     client_username = connection_socket.recv(2048).decode()
 
     # Edits previous label new message once server is connected
@@ -128,13 +133,13 @@ def init_server_connect(serverFrame, server_ip, server_port):
     serverFrame.update()
 
     # Calls function to receive a message from the client
-    receive_client(serverFrame, connection_socket, client_username)
+    receive_client(serverFrame, connection_socket)
 
 # Receives a message from the client and prints it to the frame
 # serverFrame = Frame in the window that displays content
 # connection_socket = Connection socket used to communicate with the server
 # c_user = Clients username
-def receive_client(serverFrame, connection_socket, c_user):
+def receive_client(serverFrame, connection_socket):
     connect_label = Label(serverFrame, text='Waiting for client to send a message...')
     connect_label.pack(padx=5, pady=5)
 
@@ -142,14 +147,47 @@ def receive_client(serverFrame, connection_socket, c_user):
 
     client_message = connection_socket.recv(2048).decode()
 
-    client_message = "<" + time.asctime(time.localtime()) + "> " + "[" + c_user + "]: " + client_message
+    client_message = "<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message
 
     connect_label.destroy()
 
     client_message_label = Label(serverFrame, text=client_message)
     client_message_label.pack(padx=5, pady=5)
 
+    send_to_client(serverFrame, connection_socket)
 
+def send_to_client(serverFrame, connection_socket):
+    global server_msg_entry
+
+    # Creates a frame to enter information from the entry
+    msg_entry_frame = Frame(serverFrame)
+    msg_entry_frame.pack(padx=5, pady=5, side=TOP)
+
+    # Creates a label widget for the server message
+    server_msg_label = Label(msg_entry_frame, text='Enter a message to send to the client:')
+    server_msg_label.pack(padx=5, pady=5, side=TOP)
+
+    # Creates an entry widget for the server message
+    server_msg_entry = Entry(msg_entry_frame)
+    server_msg_entry.pack(padx=5, side=LEFT)
+
+    # Creates a button that when clicked starts the on_ok_msg button function
+    okBtn = Button(msg_entry_frame, text='OK', bd=3, command=lambda: on_ok_msg(msg_entry_frame, connection_socket))
+    okBtn.pack(padx=5, side=LEFT)
+
+def on_ok_msg(frame, connection_socket):
+
+    send_server_message = server_msg_entry.get()
+    server_message = "<" + time.asctime(time.localtime()) + "> " + "[" + server_username + "]: " + send_server_message
+
+    uiGen.clear_frame(frame)
+
+    server_message_label = Label(frame, text=server_message)
+    server_message_label.pack(padx=5, pady=5)
+
+    connection_socket.send(send_server_message.encode())
+
+    receive_client(frame, connection_socket)
 
 def main_loop():
     # Loop that continues the chat between the server(this file) and the client until either inputs "end"
