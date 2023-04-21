@@ -34,13 +34,14 @@ def init_client_connect():
 
     client_socket.settimeout(None)
     time.sleep(1)
+    client_socket.send(client_username.encode())
     print("Connection established.")
 
 
     # Loop that continues the chat between the server and the client(this file) until either inputs "end"
     while True:
         # Initializes client message for sending to server
-        client_message = client_username + "."
+        client_message = ""
 
         # Get user message to send to the client
         client_message_input = input("Enter a message to send to the server (Type end to stop): ").strip()
@@ -58,7 +59,7 @@ def init_client_connect():
         client_message += client_message_input
 
         # Prints the inputted message to the screen
-        print("<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message_input)
+        #print("<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message_input)
 
         # Sends message to the server
         client_socket.send(client_message.encode())
@@ -67,8 +68,8 @@ def init_client_connect():
         server_message = client_socket.recv(2048).decode()
 
         # Splits the inputted string into the username and received message
-        server_username = server_message.split(".")[0]
-        server_message = server_message.split(".")[1]
+        #server_username = server_message.split(".")[0]
+        #server_message = server_message.split(".")[1]
 
         # Checks to see if the received message was end and if so, ends the loop
         if server_message.lower() == "end":

@@ -2,6 +2,7 @@ from tkinter import *
 from chatApplication_Server import *
 import chatApplication_UI_Gen as uiGen
 
+# Creates a server window with a button that when pressed starts the servers setup
 def server_win():
     serverWindow = Tk()
     serverWindow.title('Client Chat')
