@@ -140,20 +140,27 @@ def init_server_connect(serverFrame):
 # connection_socket = Connection socket used to communicate with the server
 # c_user = Clients username
 def receive_client(serverFrame, connection_socket):
+    # Creates a label that displays a message
     connect_label = Label(serverFrame, text='Waiting for client to send a message...')
     connect_label.pack(padx=5, pady=5)
 
+    # Updates the window to show the new label
     serverFrame.update()
 
+    # Message received from the client server
     client_message = connection_socket.recv(2048).decode()
 
+    # Modified client message to include the username and time
     client_message = "<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message
 
+    # Destroys previous label to allow for new label
     connect_label.destroy()
 
+    # Creates a new label that displays the client message
     client_message_label = Label(serverFrame, text=client_message)
     client_message_label.pack(padx=5, pady=5)
 
+    # Starts the function to start the sending process to the client
     send_to_client(serverFrame, connection_socket)
 
 def send_to_client(serverFrame, connection_socket):
@@ -177,16 +184,27 @@ def send_to_client(serverFrame, connection_socket):
 
 def on_ok_msg(frame, connection_socket):
 
+    # Gets a message from the window
     send_server_message = server_msg_entry.get()
+
+    # Checks to see if the message is empty and if so, displays a popup window
+    if send_server_message == "":
+        uiGen.show_popup("Invalid input!")
+
+    # Sets the server message to the input from the entry with the server username and time added on
     server_message = "<" + time.asctime(time.localtime()) + "> " + "[" + server_username + "]: " + send_server_message
 
+    # Clears the current frame
     uiGen.clear_frame(frame)
 
+    # Creates a label to display the client message to the window
     server_message_label = Label(frame, text=server_message)
     server_message_label.pack(padx=5, pady=5)
 
+    # Sends the client message to the client
     connection_socket.send(send_server_message.encode())
 
+    # Starts the function to begin receiving from the client script
     receive_client(frame, connection_socket)
 
 def main_loop():
