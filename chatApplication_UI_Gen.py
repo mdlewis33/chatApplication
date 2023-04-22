@@ -1,11 +1,11 @@
 from tkinter import *
 
-
 # Destroys all widgets in the frame, making the window blank
 # frame = Frame in the window that displays content
 def clear_frame(frame):
-   for widgets in frame.winfo_children():
-       widgets.destroy()
+    if frame.winfo_exists():
+        for widgets in frame.winfo_children():
+            widgets.destroy()
 
 # Displays text that is passed through as a parameter
 # frame = Frame in the window that displays content

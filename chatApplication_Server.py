@@ -85,6 +85,7 @@ def on_ok(serverFrame):
     #uiGen.display_txt(serverFrame, server_port)
 
     # Gets the inputted server username from the server_user_entry
+    global server_username
     server_username = server_user_entry.get()
 
     # Checks if the server username is empty, if so sets it to the default server username (server)
@@ -126,6 +127,8 @@ def init_server_connect(serverFrame):
     global client_username
     client_username = connection_socket.recv(2048).decode()
 
+    connection_socket.send(server_username.encode())
+
     # Edits previous label new message once server is connected
     connect_label.config(text='Connection established.')
 
@@ -140,15 +143,22 @@ def init_server_connect(serverFrame):
 # connection_socket = Connection socket used to communicate with the server
 # c_user = Clients username
 def receive_client(serverFrame, connection_socket):
+    # Creates a frame to put the client information into
+    connect_frame = Frame(serverFrame)
+    connect_frame.pack(padx=5, pady=5, side=TOP)
+
     # Creates a label that displays a message
-    connect_label = Label(serverFrame, text='Waiting for client to send a message...')
+    connect_label = Label(connect_frame, text='Waiting for client to send a message...')
     connect_label.pack(padx=5, pady=5)
 
     # Updates the window to show the new label
-    serverFrame.update()
+    connect_frame.update()
 
     # Message received from the client server
     client_message = connection_socket.recv(2048).decode()
+
+    if client_message.lower() == "end":
+        server_end_server(connect_frame, connection_socket)
 
     # Modified client message to include the username and time
     client_message = "<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message
@@ -157,12 +167,15 @@ def receive_client(serverFrame, connection_socket):
     connect_label.destroy()
 
     # Creates a new label that displays the client message
-    client_message_label = Label(serverFrame, text=client_message)
+    client_message_label = Label(connect_frame, text=client_message)
     client_message_label.pack(padx=5, pady=5)
 
     # Starts the function to start the sending process to the client
-    send_to_client(serverFrame, connection_socket)
+    send_to_client(connect_frame, connection_socket)
 
+# Displays an entry box that holds the message that will be sent to the client, activated with the click of the button
+# serverFrame = Frame in the window that displays content
+# connection_socket = Connection socket used to communicate with the server
 def send_to_client(serverFrame, connection_socket):
     global server_msg_entry
 
@@ -182,7 +195,10 @@ def send_to_client(serverFrame, connection_socket):
     okBtn = Button(msg_entry_frame, text='OK', bd=3, command=lambda: on_ok_msg(msg_entry_frame, connection_socket))
     okBtn.pack(padx=5, side=LEFT)
 
-def on_ok_msg(frame, connection_socket):
+# Gets the message and deletes the input text and box with the output and sends the message to the client
+# msg_frame = Frame in the window that displays content
+# connection_socket = Connection socket used to communicate with the server
+def on_ok_msg(msg_frame, connection_socket):
 
     # Gets a message from the window
     send_server_message = server_msg_entry.get()
@@ -190,74 +206,61 @@ def on_ok_msg(frame, connection_socket):
     # Checks to see if the message is empty and if so, displays a popup window
     if send_server_message == "":
         uiGen.show_popup("Invalid input!")
+    if send_server_message.lower() == "end":
+        server_end_server(msg_frame, connection_socket)
 
     # Sets the server message to the input from the entry with the server username and time added on
     server_message = "<" + time.asctime(time.localtime()) + "> " + "[" + server_username + "]: " + send_server_message
 
     # Clears the current frame
-    uiGen.clear_frame(frame)
+    uiGen.clear_frame(msg_frame)
 
     # Creates a label to display the client message to the window
-    server_message_label = Label(frame, text=server_message)
+    server_message_label = Label(msg_frame, text=server_message)
     server_message_label.pack(padx=5, pady=5)
 
     # Sends the client message to the client
     connection_socket.send(send_server_message.encode())
 
     # Starts the function to begin receiving from the client script
-    receive_client(frame, connection_socket)
+    receive_client(msg_frame, connection_socket)
 
-def main_loop():
-    # Loop that continues the chat between the server(this file) and the client until either inputs "end"
-    while True:
-        # Initializes server message for sending to client
-        server_message = server_username + "."
+def server_end_server(serverFrame, connection_socket):
 
-        # Splits the received message from client into username and message
-        client_username = client_message.split(".")[0]
-        client_message = client_message.split(".")[1]
+    uiGen.clear_frame(serverFrame)
 
-        # Checks to see if the received message is end and if so, exits the loop
-        if client_message.lower() == "end":
-            break
+    leave_msg = Label(serverFrame, text=server_username + " left the chat")
+    leave_msg.pack(padx=4, pady=5)
 
-        # Displays the clients username and message to the screen
-        print("<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message)
+    closing_msg = Label(serverFrame, text="Shutting down connection.....")
+    closing_msg.pack(padx=5, pady=5)
 
-        # Receives the servers message
-        server_message_input = input("Enter a message to send to the client (Type end to stop): ").strip()
+    # Update the window to display the new labels
+    serverFrame.update()
 
-        # Checks if the inputted message is empty and if so, the server has to input until the message is not empty
-        while server_message_input == "":
-            print("Invalid Input.")
-            server_message_input = input("Enter a message to send to the client (Type end to stop): ").strip()
+    connection_socket.send("end".encode())
 
-        # Stops the loop if the user inputs end
-        if server_message_input.lower() == "end":
-            break
-
-        # Adds the input message to the previously prepared message to send to client
-        server_message = server_username + "." + server_message_input
-
-        # Prints the servers username and inputted message to the screen
-        print("<" + time.asctime(time.localtime()) + "> " + "[" + server_username + "]: " + server_message_input)
-
-        # Sends the inputted message to the client
-        connection_socket.send(server_message.encode())
-
-        # Receive the client message
-        client_message = connection_socket.recv(2048).decode()
-
-
-def server_end():
-    # When the loop ends checks if the client or server ended the chat and responds accordingly
-    if client_message == "end":
-        print(client_username + " left the chat.")
-        print("Shutting down connection...")
-    else:
-        print(server_username + " left the chat.")
-        print("Shutting down connection...")
-        connection_socket.send((server_username + ".end").encode())
-
-    # Closes the server socket
     connection_socket.close()
+
+    time.sleep(5)
+
+    serverFrame.winfo_toplevel().destroy()
+
+def server_end_client(serverFrame, connection_socket):
+
+    uiGen.clear_frame(serverFrame)
+
+    leave_msg = Label(serverFrame, text= "[" + client_username + "]" + " left the chat")
+    leave_msg.pack(padx=4, pady=5)
+
+    closing_msg = Label(serverFrame, text="Shutting down connection.....")
+    closing_msg.pack(padx=5, pady=5)
+
+    # Update the window to display the new labels
+    serverFrame.update()
+
+    connection_socket.close()
+
+    time.sleep(5)
+
+    serverFrame.winfo_toplevel().destroy()
