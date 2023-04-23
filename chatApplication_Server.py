@@ -53,7 +53,7 @@ def server_setup(serverFrame):
 
     # Creates a button that when clicked starts the on_ok button function
     okBtn = Button(serverFrame, text='OK', bd=3, command=lambda: on_ok(serverFrame))
-    okBtn.pack(side=BOTTOM)
+    okBtn.pack(side=TOP)
 
 # Gets the answers entered into the entry's and save them into variables.
 # serverFrame = Frame in the window that displays content
@@ -66,7 +66,7 @@ def on_ok(serverFrame):
     regex = "^([0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})$"
 
     # Gets the inputted server ip from the server_ip_entry entry box
-    server_ip = server_ip_entry.get()
+    server_ip = server_ip_entry.get().strip()
 
     # Checks the server ip to see if it's empty, if so sets it to the default ip address (127.0.0.1)
     if server_ip == '':
@@ -77,7 +77,7 @@ def on_ok(serverFrame):
         uiGen.show_popup("Invalid IP Address.")
 
     # Gets the inputted server port from the server_port_entry entry box
-    server_port = server_port_entry.get()
+    server_port = server_port_entry.get().strip()
 
     # Checks if the server port is empty, if so sets it to the default port number (8000)
     if server_port == '':
@@ -85,13 +85,12 @@ def on_ok(serverFrame):
     #uiGen.display_txt(serverFrame, server_port)
 
     # Gets the inputted server username from the server_user_entry
-    global server_username
-    server_username = server_user_entry.get()
+    server_username = server_user_entry.get().strip()
 
     # Checks if the server username is empty, if so sets it to the default server username (server)
     if server_username == '':
         server_username = 'server'
-    uiGen.display_txt(serverFrame, server_username)
+    #uiGen.display_txt(serverFrame, server_username)
 
     # Calls function to begin connection of server to client
     init_server_connect(serverFrame)
@@ -125,6 +124,7 @@ def init_server_connect(serverFrame):
 
     # Receive the client username from the server
     global client_username
+
     client_username = connection_socket.recv(2048).decode()
 
     connection_socket.send(server_username.encode())
@@ -158,7 +158,7 @@ def receive_client(serverFrame, connection_socket):
     client_message = connection_socket.recv(2048).decode()
 
     if client_message.lower() == "end":
-        server_end_server(connect_frame, connection_socket)
+        server_end_client(connect_frame, connection_socket)
 
     # Modified client message to include the username and time
     client_message = "<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message
@@ -201,11 +201,11 @@ def send_to_client(serverFrame, connection_socket):
 def on_ok_msg(msg_frame, connection_socket):
 
     # Gets a message from the window
-    send_server_message = server_msg_entry.get()
+    send_server_message = server_msg_entry.get().strip()
 
     # Checks to see if the message is empty and if so, displays a popup window
     if send_server_message == "":
-        uiGen.show_popup("Invalid input!")
+        uiGen.show_popup("Invalid Input!")
     if send_server_message.lower() == "end":
         server_end_server(msg_frame, connection_socket)
 
@@ -229,10 +229,10 @@ def server_end_server(serverFrame, connection_socket):
 
     uiGen.clear_frame(serverFrame)
 
-    leave_msg = Label(serverFrame, text=server_username + " left the chat")
+    leave_msg = Label(serverFrame, text="[" + server_username + "]" + " left the chat")
     leave_msg.pack(padx=4, pady=5)
 
-    closing_msg = Label(serverFrame, text="Shutting down connection.....")
+    closing_msg = Label(serverFrame, text="Shutting down connection...")
     closing_msg.pack(padx=5, pady=5)
 
     # Update the window to display the new labels
@@ -250,10 +250,10 @@ def server_end_client(serverFrame, connection_socket):
 
     uiGen.clear_frame(serverFrame)
 
-    leave_msg = Label(serverFrame, text= "[" + client_username + "]" + " left the chat")
+    leave_msg = Label(serverFrame, text="[" + client_username + "]" + " left the chat")
     leave_msg.pack(padx=4, pady=5)
 
-    closing_msg = Label(serverFrame, text="Shutting down connection.....")
+    closing_msg = Label(serverFrame, text="Shutting down connection...")
     closing_msg.pack(padx=5, pady=5)
 
     # Update the window to display the new labels

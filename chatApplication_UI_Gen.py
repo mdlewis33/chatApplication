@@ -1,3 +1,4 @@
+import threading
 from tkinter import *
 
 # Destroys all widgets in the frame, making the window blank
@@ -28,6 +29,6 @@ def show_popup(msg):
 # Creates a label to display the message that is passed as a parameter
 # frame = Frame in the window that displays content
 # msg = Message that is displayed to the window
-def received_mssg(frame, msg):
+def received_msg(frame, msg):
     message_label = Label(frame, text=f'Received message: {msg}')
     message_label.pack(padx=5, pady=5)
