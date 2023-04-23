@@ -4,15 +4,20 @@ import re
 from tkinter import *
 import chatApplication_UI_Gen as uiGen
 
-# Creates three entry boxes for the servers' username, port, and IP address.
-#   Also creates a button that once clicked will submit all typed-in answers from the entry boxes
-# serverFrame = Frame in the window that displays content
 def server_setup(serverFrame):
+    """ Creates three entry boxes for the servers username, port, and IP address.
+            Also creates a button that once clicked will start a function to handel the inputs
+
+    Args:
+        serverFrame (Frame): Frame in the window that displays content
+    """
+    
     # Initialize variables for later use
     global server_port_entry
     global server_user_entry
     global server_ip_entry
 
+    # Clears the window
     uiGen.clear_frame(serverFrame)
 
     # Creates a label widget for the server IP address
@@ -55,17 +60,20 @@ def server_setup(serverFrame):
     okBtn = Button(serverFrame, text='OK', bd=3, command=lambda: on_ok(serverFrame))
     okBtn.pack(side=TOP)
 
-# Gets the answers entered into the entry's and save them into variables.
-# serverFrame = Frame in the window that displays content
 def on_ok(serverFrame):
+    """ Gets the input entered from the entry's and saves them into variables.
+
+    Args:
+        serverFrame (Frame): Frame in the window that displays content
+    """
     global server_ip
     global server_port
-    global server_username
+    global username
 
     # Regular expression statement to test
     regex = "^([0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})$"
 
-    # Gets the inputted server ip from the server_ip_entry entry box
+    # Gets the inputted server ip from the server_ip_entry entry box, removes whitespace from the front and back for string
     server_ip = server_ip_entry.get().strip()
 
     # Checks the server ip to see if it's empty, if so sets it to the default ip address (127.0.0.1)
@@ -73,37 +81,37 @@ def on_ok(serverFrame):
         server_ip = '127.0.0.1'
     # Checks if the ip address matches the regular expression, if not creates a popup saying the ip was invalid
     if not re.search(regex, server_ip):
-        # uiGen.display_txt(serverFrame, server_ip)
         uiGen.show_popup("Invalid IP Address.")
 
-    # Gets the inputted server port from the server_port_entry entry box
+    # Gets the inputted server port from the server_port_entry entry box, removes whitespace from the front and back for string
     server_port = server_port_entry.get().strip()
 
     # Checks if the server port is empty, if so sets it to the default port number (8000)
     if server_port == '':
         server_port = 8000
-    #uiGen.display_txt(serverFrame, server_port)
 
-    # Gets the inputted server username from the server_user_entry
+    # Gets the inputted server username from the server_user_entry, removes whitespace from the front and back for string
+    global server_username
     server_username = server_user_entry.get().strip()
 
-    # Checks if the server username is empty, if so sets it to the default server username (server)
+    # Checks if the servers username is empty, if so sets it to the default server username ("server")
     if server_username == '':
         server_username = 'server'
-    #uiGen.display_txt(serverFrame, server_username)
 
     # Calls function to begin connection of server to client
     init_server_connect(serverFrame)
 
-# Clears the window and attempts to connect to the client server, if it connects it will display the recieved message
-# serverFrame = Frame in the window that displays content
-# server_ip = Servers IP address
-# server_port = Servers port number
 def init_server_connect(serverFrame):
-    # Clears the window
+    """ Clears the window and attempts to connect to the client, if it connects it will display the received message
+
+    Args:
+        serverFrame (Frame): Frame in the window that displays content
+    """
+    
+    # Clears the current frame
     uiGen.clear_frame(serverFrame)
 
-    # Create server socket
+    # Create connection socket
     server_socket = socket(AF_INET, SOCK_STREAM)
 
     # Bind server socket to ip and port
@@ -116,20 +124,20 @@ def init_server_connect(serverFrame):
     connect_label = Label(serverFrame, text='Trying to connect to another user...')
     connect_label.pack(padx=5, pady=5)
 
-    # Updates the frame to show the previous label
+    # Updates the window to show the new label
     serverFrame.update()
 
     # Create connection socket
     connection_socket, address = server_socket.accept()
-
-    # Receive the client username from the server
+    
+    # Sets the client username to what the client set it too
     global client_username
-
     client_username = connection_socket.recv(2048).decode()
 
+    # Sends what the server username was set too
     connection_socket.send(server_username.encode())
 
-    # Edits previous label new message once server is connected
+    # Edits previous label to the new message once server is connected
     connect_label.config(text='Connection established.')
 
     # Updates the window to show the new label
@@ -138,11 +146,13 @@ def init_server_connect(serverFrame):
     # Calls function to receive a message from the client
     receive_client(serverFrame, connection_socket)
 
-# Receives a message from the client and prints it to the frame
-# serverFrame = Frame in the window that displays content
-# connection_socket = Connection socket used to communicate with the server
-# c_user = Clients username
 def receive_client(serverFrame, connection_socket):
+    """ Receives a message from the client and prints it to the window
+
+    Args:
+        serverFrame (Frame): Frame in the window that displays content
+        connection_socket (socket): Connection socket used to communicate with the client
+    """
     # Creates a frame to put the client information into
     connect_frame = Frame(serverFrame)
     connect_frame.pack(padx=5, pady=5, side=TOP)
@@ -154,13 +164,14 @@ def receive_client(serverFrame, connection_socket):
     # Updates the window to show the new label
     connect_frame.update()
 
-    # Message received from the client server
+    # Message received from the client 
     client_message = connection_socket.recv(2048).decode()
 
+    # If the clients inputs end then begins ending the chat
     if client_message.lower() == "end":
-        server_end_client(connect_frame, connection_socket)
+        uiGen.other_end_client(connect_frame, connection_socket, client_username)
 
-    # Modified client message to include the username and time
+    # Modified client message to include the client username and time
     client_message = "<" + time.asctime(time.localtime()) + "> " + "[" + client_username + "]: " + client_message
 
     # Destroys previous label to allow for new label
@@ -173,17 +184,20 @@ def receive_client(serverFrame, connection_socket):
     # Starts the function to start the sending process to the client
     send_to_client(connect_frame, connection_socket)
 
-# Displays an entry box that holds the message that will be sent to the client, activated with the click of the button
-# serverFrame = Frame in the window that displays content
-# connection_socket = Connection socket used to communicate with the server
 def send_to_client(serverFrame, connection_socket):
+    """ Displays an entry box that holds the message that will be sent to the client, activated with the click of the button
+
+    Args:
+        serverFrame (Frame): Frame in the window that displays content
+        connection_socket (socket): Connection socket used to communicate with the client
+    """
     global server_msg_entry
 
     # Creates a frame to enter information from the entry
     msg_entry_frame = Frame(serverFrame)
     msg_entry_frame.pack(padx=5, pady=5, side=TOP)
 
-    # Creates a label widget for the server message
+    # Creates a label widget the enter a message to send to the client
     server_msg_label = Label(msg_entry_frame, text='Enter a message to send to the client:')
     server_msg_label.pack(padx=5, pady=5, side=TOP)
 
@@ -195,19 +209,23 @@ def send_to_client(serverFrame, connection_socket):
     okBtn = Button(msg_entry_frame, text='OK', bd=3, command=lambda: on_ok_msg(msg_entry_frame, connection_socket))
     okBtn.pack(padx=5, side=LEFT)
 
-# Gets the message and deletes the input text and box with the output and sends the message to the client
-# msg_frame = Frame in the window that displays content
-# connection_socket = Connection socket used to communicate with the server
 def on_ok_msg(msg_frame, connection_socket):
+    """ Gets the message and deletes the input label and output entry and sends the message to the client
+
+    Args:
+        msg_frame (Frame): Frame in the window that displays content
+        connection_socket (socket): Connection socket used to communicate with the client
+    """
 
     # Gets a message from the window
     send_server_message = server_msg_entry.get().strip()
 
-    # Checks to see if the message is empty and if so, displays a popup window
+    # Checks to see if the received message is empty and if so, displays a popup window
     if send_server_message == "":
         uiGen.show_popup("Invalid Input!")
+    # Checks to see if the received message is end and if so, begins ending of the chat
     if send_server_message.lower() == "end":
-        server_end_server(msg_frame, connection_socket)
+        uiGen.self_end_server(msg_frame, connection_socket, server_username)
 
     # Sets the server message to the input from the entry with the server username and time added on
     server_message = "<" + time.asctime(time.localtime()) + "> " + "[" + server_username + "]: " + send_server_message
@@ -215,52 +233,78 @@ def on_ok_msg(msg_frame, connection_socket):
     # Clears the current frame
     uiGen.clear_frame(msg_frame)
 
-    # Creates a label to display the client message to the window
+    # Creates a label to display the inputted server message to the window
     server_message_label = Label(msg_frame, text=server_message)
     server_message_label.pack(padx=5, pady=5)
 
-    # Sends the client message to the client
+    # Sends the server message to the client
     connection_socket.send(send_server_message.encode())
 
     # Starts the function to begin receiving from the client script
     receive_client(msg_frame, connection_socket)
 
 def server_end_server(serverFrame, connection_socket):
+    """ Ends the connection between the server and client when the server side initiates the end and then sends a 
+            message to inform the client to end as well
 
+    Args:
+        serverFrame (Frame): Frame in the window that displays content
+        connection_socket (socket): Connection socket used to communicate with the client
+    """
+
+    # Clears the current frame
     uiGen.clear_frame(serverFrame)
 
+    # Creates a label to display the servers username and display it with the "left the chat" message
     leave_msg = Label(serverFrame, text="[" + server_username + "]" + " left the chat")
     leave_msg.pack(padx=4, pady=5)
 
+    # Creates a label to show that the connection will be shutting down
     closing_msg = Label(serverFrame, text="Shutting down connection...")
     closing_msg.pack(padx=5, pady=5)
 
-    # Update the window to display the new labels
+    # Updates the window to show the new label
     serverFrame.update()
 
+    # Informs the client script to end
     connection_socket.send("end".encode())
 
+    # Closes the connection 
     connection_socket.close()
 
+    # Waits 5 seconds
     time.sleep(5)
-
+    
+    # Destroys the entire window
     serverFrame.winfo_toplevel().destroy()
 
 def server_end_client(serverFrame, connection_socket):
+    """ Ends the connection between the server and client when the client side initiates the end
 
+    Args:
+        serverFrame (Frame): Frame in the window that displays content
+        connection_socket (socket): Connection socket used to communicate with the client
+    """
+
+    # Clears the current frame
     uiGen.clear_frame(serverFrame)
 
+    # Creates a label to display the clients username and display it with the "left the chat" message
     leave_msg = Label(serverFrame, text="[" + client_username + "]" + " left the chat")
     leave_msg.pack(padx=4, pady=5)
 
+    # Creates a label to show that the connection will be shutting down
     closing_msg = Label(serverFrame, text="Shutting down connection...")
     closing_msg.pack(padx=5, pady=5)
 
-    # Update the window to display the new labels
+    # Updates the window to show the new label
     serverFrame.update()
 
+    # Closes the connection
     connection_socket.close()
 
+    # Waits 5 seconds
     time.sleep(5)
 
+    # Destroys the entire window
     serverFrame.winfo_toplevel().destroy()
