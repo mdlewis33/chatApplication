@@ -42,38 +42,68 @@ I learned more about regular expressions and gained experience with the socket l
 ## Usage
 
 1) Start the chatApplication_Server.py file and input the responses until it tries to connect with another user
-    Output:
-        Enter the server IP address (<Enter> for localhost):
-        Enter the server port number (<Enter> for localhost):
-        Enter your username (<Enter> for server):
-        Trying to connect to another user...
+    
+Output:
+        
+Enter the server IP address (<Enter> for localhost):
+        
+Enter the server port number (<Enter> for localhost):
+        
+Enter your username (<Enter> for server):
+        
+Trying to connect to another user...
 
 2) Start the chatApplication_Client.py file
-    Output:
-        Enter the server IP address (<Enter> for localhost):
-        Enter the server port number (<Enter> for localhost):
-        Enter your username (<Enter> for user):
-        Trying to connect to server....
-        Connection established.
+    
+Output:
+        
+Enter the server IP address (<Enter> for localhost):
+        
+Enter the server port number (<Enter> for localhost):
+        
+Enter your username (<Enter> for user):
+        
+Trying to connect to server....
+
+Connection established.
+
 3) Type a message to send to the server
-    Output:
-        Enter a message to send to the server (Type end to stop): hello
-        <Mon Apr 17 11:42:43 2023> [user]: hello
+    
+Output:
+       
+Enter a message to send to the server (Type end to stop): hello
+        
+<Mon Apr 17 11:42:43 2023> [user]: hello
+
 
 4) The server will receive the message from the client, type a message and send it back
-    Output:
-        Connection established.
-        <Mon Apr 17 11:42:43 2023> [user]: hello
-        Enter a message to send to the client (Type end to stop): hello
-        <Mon Apr 17 11:42:58 2023> [server]: hello
+    
+Output:
+      
+Connection established.
+   
+<Mon Apr 17 11:42:43 2023> [user]: hello
+     
+Enter a message to send to the client (Type end to stop): hello
+   
+<Mon Apr 17 11:42:58 2023> [server]: hello
+
 
 5) The client will receive the message from the server, type a message and send it back
-    Output:
-        <Mon Apr 17 11:42:58 2023> [server]: hello
-        Enter a message to send to the server (Type end to stop): end
+   
+Output:
+   
+<Mon Apr 17 11:42:58 2023> [server]: hello
+    
+Enter a message to send to the server (Type end to stop): end
+
 
 6) Message back-and-fourth until one user enters end
-    Output:
-        Enter a message to send to the client (Type end to stop): end
-        User server left the chat.
-        Shutting down connection...
+   
+Output:
+     
+Enter a message to send to the client (Type end to stop): end
+     
+User server left the chat.
+     
+Shutting down connection...
