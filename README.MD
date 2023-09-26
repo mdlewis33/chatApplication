@@ -36,8 +36,8 @@ I learned more about regular expressions and gained experience with the socket l
 
 1) Download a Python IDE of your choice
 2) Open files inside of Python IDE
-3) Run the server script and enter information up until "Trying to connect to another user..."
-4) Run the client script
+3) Run chatApplication_Client_Launch.py and enter information up until "Trying to connect to another user..."
+4) Run chatApplication_Server_Launch.py
 
 ## Usage
 
